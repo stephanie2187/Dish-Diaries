@@ -1,0 +1,53 @@
+
+#title {
+    color: #01497c;
+    text-align: center;
+    font-size: 5rem;
+    margin-top: 5rem;
+    font-weight: bold;
+}
+
+.h3 {
+    color: #01497c;
+    text-align: center;
+    font-size: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+body {
+    background-color: #edf2fb;
+}
+
+div {
+    margin: 10px;
+}
+
+#gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 10px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+.gallery-item {
+    position: relative;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+}
+
+.gallery-item div {
+    text-align: center;
+    margin-top: 5px;
+}
+
+.gallery-item button {
+    margin-top: 5px;
+}
+
+

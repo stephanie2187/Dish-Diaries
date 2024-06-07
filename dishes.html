@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Dish Diaries</title>
+   <link rel="stylesheet" type="text/css" href="custom-styles.css">
+   <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
+
+
+   <script defer src="/__/firebase/10.12.0/firebase-app-compat.js"></script>
+   <!-- include only the Firebase features as you need -->
+   <script defer src="/__/firebase/10.12.0/firebase-auth-compat.js"></script>
+   <script defer src="/__/firebase/10.12.0/firebase-database-compat.js"></script>
+   <script defer src="/__/firebase/10.12.0/firebase-firestore-compat.js"></script>
+   <script defer src="/__/firebase/10.12.0/firebase-functions-compat.js"></script>
+   <script defer src="/__/firebase/10.12.0/firebase-messaging-compat.js"></script>
+   <script defer src="/__/firebase/10.12.0/firebase-storage-compat.js"></script>
+
+
+   <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore-compat.js"></script>
+
+
+   <script src="https://maps.googleapis.com/maps/api/js?key=API_KEY_HERE&libraries=places"></script>
+</head>
+<body>
+   <script type="module">
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+     import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+     import { getStorage, ref, uploadBytes, getDownloadURL, listAll, getMetadata, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  
+     // Your web app's Firebase configuration
+     const firebaseConfig = {
+       apiKey: "API_KEY_HERE",
+       authDomain: "dish-diaries-9d33c.firebaseapp.com",
+       projectId: "dish-diaries-9d33c",
+       storageBucket: "dish-diaries-9d33c.appspot.com",
+       messagingSenderId: "738460933",
+       appId: "1:738460933:web:ec5c20eacc9b4ecb22236c"
+     };
+  
+     // Initialize Firebase
+     const app = initializeApp(firebaseConfig);
+     const auth = getAuth(app);
+     const storage = getStorage(app);
+     const db = getFirestore(app);
+
+
+     let autocomplete;
+     function initAutocomplete() {
+       autocomplete = new google.maps.places.Autocomplete(
+         document.getElementById('locationInput'),
+         { types: ['establishment'] }
+       );
+     }
+
+
+     google.maps.event.addDomListener(window, 'load', initAutocomplete);
+  
+     // Ensure functions are globally accessible
+     window.handleFileUpload = async function handleFileUpload() {
+       const fileInput = document.getElementById('fileInput');
+       const ratingInput = document.getElementById('ratingInput');
+       const nameInput = document.getElementById('nameInput');
+       const locationInput = document.getElementById('locationInput');
+
+
+       if (fileInput.files.length > 0) {
+         const file = fileInput.files[0];
+         const rating = ratingInput.value;
+         const name = nameInput.value;
+         const location = locationInput.value;
+         await uploadImage(file, rating, name, location);
+       }
+     }
+  
+     async function uploadImage(file, rating, name, location) {
+       const userId = auth.currentUser.uid;
+       const storageRef = ref(storage, `${userId}/${file.name}`);
+       const metadata = {
+         customMetadata: {
+           userId: userId,
+           rating: rating,
+           name: name,
+           location: location,
+           uploadedAt: new Date().toISOString()
+         }
+       };
+       await uploadBytes(storageRef, file, metadata);
+       loadGallery(userId);
+     }
+
+
+     window.deleteImage = async function deleteImage(storagePath) {
+       const storageRef = ref(storage, storagePath);
+       try {
+         await deleteObject(storageRef);
+         console.log('Image deleted:', storagePath);
+         const userId = auth.currentUser.uid;
+         loadGallery(userId);
+       } catch (error) {
+         console.error("Error deleting image:", error);
+       }
+     }
+  
+     async function loadGallery(userId) {
+       const listRef = ref(storage, userId);
+       const res = await listAll(listRef);
+       const gallery = document.getElementById('gallery');
+       gallery.innerHTML = '';
+  
+       for (const itemRef of res.items) {
+         const url = await getDownloadURL(itemRef);
+         const metadata = await getMetadata(itemRef);
+         if (metadata.customMetadata.userId === userId) {
+           const img = document.createElement('img');
+           img.src = url;
+           img.alt = 'User Image';
+           const caption = document.createElement('div');
+           caption.textContent = `Dish: ${metadata.customMetadata.name}, Rating: ${metadata.customMetadata.rating}/5`;
+           const container = document.createElement('div');
+           container.className = 'gallery-item';
+           const deleteButton = document.createElement('button');
+           deleteButton.textContent = 'Delete';
+           deleteButton.onclick = () => deleteImage(itemRef.fullPath);
+
+
+           img.addEventListener('click', () => {
+               const location = metadata.customMetadata.location;
+               if (location) {
+                   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+                   window.open(mapsUrl, '_blank');
+               } else {
+                   alert('Location not available');
+               }
+           });
+
+
+           container.appendChild(img);
+           container.appendChild(caption);
+           container.appendChild(deleteButton);
+           gallery.appendChild(container);
+         }
+       }
+     }
+  
+     onAuthStateChanged(auth, (user) => {
+       if (user) {
+         const userId = user.uid;
+         loadGallery(userId);
+       }
+     });
+   </script>
+
+
+   <h1 id="title">Dish Diaries</h1>
+   <div>
+     <input type="file" id="fileInput" />
+     <input type="number" id="ratingInput" placeholder="Rating (out of 5)" min="1" max="5" />
+     <input type="text" id="nameInput" placeholder="Dish Name" />
+     <input type="text" id="locationInput" placeholder="Location" />
+     <button onclick="handleFileUpload()">Upload Image</button>
+   </div>
+   <div id="gallery"></div>
+</body>
+</html>
