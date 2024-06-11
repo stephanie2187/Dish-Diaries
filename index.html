@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dish Diaries</title>
+
+    <!-- Firebase features, UI components, and Google Fonts -->
+    <script defer src="/__/firebase/10.12.0/firebase-app-compat.js"></script>
+    
+    <script defer src="/__/firebase/10.12.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/10.12.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/10.12.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/10.12.0/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/10.12.0/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/10.12.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/10.12.0/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/10.12.0/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/10.12.0/firebase-performance-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script> 
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.1/firebase-app-compat.js"></script> 
+    
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
+    <link rel="stylesheet" type="text/css" href="custom-styles.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+   
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+
+    
+  </head>
+  <body>
+    <script type="module">
+      
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+      import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "API_KEY_HERE",
+        authDomain: "dish-diaries-9d33c.firebaseapp.com",
+        projectId: "dish-diaries-9d33c",
+        storageBucket: "dish-diaries-9d33c.appspot.com",
+        messagingSenderId: "738460933",
+        appId: "1:738460933:web:ec5c20eacc9b4ecb22236c"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      // Initialize FirebaseUI Widget
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      
+      ui.start('#firebaseui-auth-container', {
+        signInOptions: [
+          firebase.auth.EmailAuthProvider.PROVIDER_ID
+        ]
+      });
+
+      var uiConfig = {
+        callbacks: {
+          signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+          // User successfully signed in.
+          return true;
+          },
+          uiShown: function() {
+            // Renders widget and hides the loader
+            document.getElementById('loader').style.display = 'none';
+          }
+        },
+        
+        signInFlow: 'popup',
+        signInSuccessUrl: '/dishes.html',
+        signInOptions: [
+          firebase.auth.EmailAuthProvider.PROVIDER_ID
+        ],
+          tosUrl: '<your-tos-url>',
+          privacyPolicyUrl: '<your-privacy-policy-url>'
+      };
+
+
+        // Start method waits until the DOM loads
+        ui.start('#firebaseui-auth-container', uiConfig);
+
+    </script>
+
+    <div id="title-container">
+      <h1 class="outfit-title">Dish Diaries</h1>
+      <h3 id="sign-in-instructions">Sign in with existing email and password, or sign up with a new account below.</h3>
+      <div id="firebaseui-auth-container"></div>
+    </div>
+    
+    
+  </body>
+</html>
