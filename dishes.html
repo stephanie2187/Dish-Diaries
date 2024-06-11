@@ -7,9 +7,9 @@
    <link rel="stylesheet" type="text/css" href="custom-styles.css">
    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
 
-
+  <!-- Firebase features, UI components, and Maps API -->
    <script defer src="/__/firebase/10.12.0/firebase-app-compat.js"></script>
-   <!-- include only the Firebase features as you need -->
+   
    <script defer src="/__/firebase/10.12.0/firebase-auth-compat.js"></script>
    <script defer src="/__/firebase/10.12.0/firebase-database-compat.js"></script>
    <script defer src="/__/firebase/10.12.0/firebase-firestore-compat.js"></script>
@@ -32,7 +32,7 @@
      import { getStorage, ref, uploadBytes, getDownloadURL, listAll, getMetadata, deleteObject } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
      import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
   
-     // Your web app's Firebase configuration
+     // Firebase configuration
      const firebaseConfig = {
        apiKey: "API_KEY_HERE",
        authDomain: "dish-diaries-9d33c.firebaseapp.com",
@@ -42,13 +42,13 @@
        appId: "1:738460933:web:ec5c20eacc9b4ecb22236c"
      };
   
-     // Initialize Firebase
+     // Firebase initialization
      const app = initializeApp(firebaseConfig);
      const auth = getAuth(app);
      const storage = getStorage(app);
      const db = getFirestore(app);
 
-
+     // Maps autocomplete feature for location search
      let autocomplete;
      function initAutocomplete() {
        autocomplete = new google.maps.places.Autocomplete(
@@ -56,18 +56,16 @@
          { types: ['establishment'] }
        );
      }
-
-
      google.maps.event.addDomListener(window, 'load', initAutocomplete);
   
-     // Ensure functions are globally accessible
+     // Makes functions globally accessible
      window.handleFileUpload = async function handleFileUpload() {
        const fileInput = document.getElementById('fileInput');
        const ratingInput = document.getElementById('ratingInput');
        const nameInput = document.getElementById('nameInput');
        const locationInput = document.getElementById('locationInput');
 
-
+      // Assigns user ratings, names, and locations to their files
        if (fileInput.files.length > 0) {
          const file = fileInput.files[0];
          const rating = ratingInput.value;
@@ -76,7 +74,8 @@
          await uploadImage(file, rating, name, location);
        }
      }
-  
+     
+     // Uploads images with associated metadata
      async function uploadImage(file, rating, name, location) {
        const userId = auth.currentUser.uid;
        const storageRef = ref(storage, `${userId}/${file.name}`);
@@ -93,7 +92,7 @@
        loadGallery(userId);
      }
 
-
+     // Deletes images and removes them from Firebase storage
      window.deleteImage = async function deleteImage(storagePath) {
        const storageRef = ref(storage, storagePath);
        try {
@@ -106,6 +105,7 @@
        }
      }
   
+     // Loads the user's gallery with captions for each file
      async function loadGallery(userId) {
        const listRef = ref(storage, userId);
        const res = await listAll(listRef);
@@ -147,6 +147,7 @@
        }
      }
   
+     // Checks if the user has changed to ensure the correct gallery is loaded
      onAuthStateChanged(auth, (user) => {
        if (user) {
          const userId = user.uid;
