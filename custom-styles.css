@@ -1,18 +1,34 @@
 
-#title {
+.outfit-title {
+    font-family: "Outfit", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
     color: #01497c;
     text-align: center;
-    font-size: 5rem;
+    font-size: 7rem;
     margin-top: 5rem;
     font-weight: bold;
-}
+  }
 
-.h3 {
+#sign-in-instructions {
+    font-family: "Outfit", sans-serif;
+    font-weight: 100;
+    font-style: normal;
     color: #01497c;
     text-align: center;
-    font-size: 1rem;
+    font-size: 1.5rem;
     margin-top: 1rem;
     margin-bottom: 2rem;
+    max-width: 100%;
+    white-space: normal;
+}
+
+#title-container {
+    width: 60%;  
+    max-width: 60%;
+    text-align: center;
+    margin: 0 auto;
 }
 
 body {
